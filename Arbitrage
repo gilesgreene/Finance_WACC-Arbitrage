@@ -1,0 +1,86 @@
+def calculate_expected_payoff(long_prob, short_prob, long_outcome, short_outcome):
+    # Define the normal winning payoffs for each outcome
+    winning_payoffs = [36, 18, 12, 9, 7.20, 6, 7.20, 9, 12, 18, 36]
+
+    # Calculate the expected payoff
+    expected_payoff = (long_prob * winning_payoffs[long_outcome - 2]) - (short_prob * winning_payoffs[short_outcome - 2])
+
+    return expected_payoff
+
+
+def calculate_probability(custom_probs):
+    if len(custom_probs) != 6 or any(prob < 0 or prob > 1 for prob in custom_probs):
+        print(
+            "Invalid probabilities. Probabilities must be between 0 and 1 and there should be 6 probabilities provided.")
+        return {}
+
+    # Calculate the probability distribution for rolling two dice
+    probability_distribution = {}
+    for i in range(1, 7):
+        for j in range(1, 7):
+            outcome = i + j
+            if outcome not in probability_distribution:
+                probability_distribution[outcome] = 0
+            # Multiply the custom probabilities by the normal probability for the unaffected die
+            probability_distribution[outcome] += custom_probs[i - 1] * (1 / 6)
+
+    return probability_distribution
+
+
+def main():
+    # Input probabilities for custom die
+    print("Enter the probability of '1':")
+    one = float(input())
+    one = one / 100
+    print("Enter the probability of '2':")
+    two = float(input())
+    two = two / 100
+    print("Enter the probability of '3':")
+    three = float(input())
+    three = three / 100
+    print("Enter the probability of '4':")
+    four = float(input())
+    four = four / 100
+    print("Enter the probability of '5':")
+    five = float(input())
+    five = five / 100
+    print("Enter the probability of '6':")
+    six = float(input())
+    six = six / 100
+
+    # Create a list of custom probabilities
+    custom_probs = [one, two, three, four, five, six]
+
+    # Calculate the probability distribution
+    probability_distribution = calculate_probability(custom_probs)
+
+    # Ask user which outcome they are going long on
+    print("\nWhich outcome are you going long on? (Enter a number from 2 to 12):")
+    long_outcome = int(input())
+
+    # Ask user which outcome they are going short on
+    print("Which outcome are you going short on? (Enter a number from 2 to 12, different from the long outcome):")
+    short_outcome = int(input())
+
+    # Calculate the adjusted probabilities for going long and short
+    long_prob = probability_distribution[long_outcome]
+    short_prob = probability_distribution[short_outcome]
+
+    # Calculate the expected payoff
+    expected_payoff = calculate_expected_payoff(long_prob, short_prob, long_outcome, short_outcome)
+
+    # Display the result
+    if probability_distribution:
+        print("\nProbability distribution for rolling two dice:")
+        for outcome, probability in probability_distribution.items():
+            # Round the probability to 6 decimal places
+            probability = round(probability, 6)
+            print(f"Outcome: {outcome}, Probability: {probability:.6f}")
+
+        print(f"\nExpected Payoff (long on {long_outcome}, short on {short_outcome}): {expected_payoff:.6f}")
+    else:
+        print("No probability distribution calculated due to invalid input.")
+
+
+if __name__ == "__main__":
+    main()

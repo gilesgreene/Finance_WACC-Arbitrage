@@ -1,0 +1,86 @@
+def calculate_wacc(debt_percentage, equity_percentage, capital, retained_earnings):
+
+    wacc = ((ATrD * debt_percentage) + ((retained_earnings/capital) * Ks)) + (round((equity_percentage - (retained_earnings/capital)),4) * Ke)
+
+
+    print("WACC =", ATrD, "*", debt_percentage, "+", (retained_earnings/capital), "*", Ks, "+",
+    round((equity_percentage - (retained_earnings/capital)),4), "*", round(Ke,4))
+
+    return wacc
+
+def CAPM(Risk_Free_Rate, Market_Risk_Premium, Beta):
+    global Ks
+    Ks = round(Risk_Free_Rate + (Market_Risk_Premium * Beta),2)
+    return Ks
+
+def corporate_bond_value(annual_coupon_rate, tax_rate):
+    payment = annual_coupon_rate * 10
+    semi_ann_payment = payment / 2
+    print(f"A bond at par:\nN='years'\nPV=-1000\nPMT= {payment}\nFV=1000")
+    print(f"A bond not at par:\nN='years'('years*2 for semi-annual coupon')\n"
+          f"PV=-'current price of the bond'\nPMT= {payment}"
+          f"({semi_ann_payment} for semi-annual)\nFV=1000")
+    rD = float(input("Enter the i/yr: "))
+    global ATrD
+    ATrD = (rD * (1-tax_rate)) / 100
+    return ATrD
+
+def retained_earnings_with_CP(D1, current_stock_price, dividend_payout, ROE, new_issuance_flotation_expense, current_stock_price_dis):
+    g = (1-dividend_payout) * ROE
+    global Ke
+    if stock_discount == "yes":
+        Ke = (D1/(current_stock_price_dis * (1 - new_issuance_flotation_expense))) + g
+    else:
+        Ke = (D1/(current_stock_price * (1 - new_issuance_flotation_expense))) + g
+    return Ke
+
+def retained_earnings_without_CP(D1, dividend_payout, ROE, new_issuance_flotation_expense):
+    g = (1-dividend_payout) * ROE
+    current_price = D1/(Ks - g)
+    global Ke
+    Ke = (D1/(current_price * (1 - new_issuance_flotation_expense))) + g
+    return Ke
+
+def main():
+    debt_percentage = float(input("Enter the percentage of capital raised through debt: ")) / 100
+    equity_percentage = float(input("Enter the percentage of capital raised through equity: ")) / 100
+    capital = float(input("Enter the Capital to be raised: "))
+    tax_rate = float(input("Enter the tax rate: ")) / 100
+    retained_earnings = float(input("Enter the retained earnings to support the capital: "))
+    annual_coupon_rate = float(input("Enter the annual coupon rate of outstanding bonds: "))
+    corporate_bond_value(annual_coupon_rate, tax_rate)
+    Risk_Free_Rate = float(input("Enter the risk-free rate: ")) / 100
+    Market_Risk_Premium = float(input("Enter the market risk premium: ")) / 100
+    Beta = float(input("Enter the Beta: "))
+    D1 = float(input("Enter the expected dividend price: "))
+    ROE = float(input("Enter the ROE: ")) / 100
+    dividend_payout = float(input("Enter the dividend payout rate: ")) / 100
+    global currentCP
+    currentCP = str(input("Was the current stock price given?: "))
+    if currentCP == "yes":
+        global current_stock_price
+        current_stock_price = float(input("Enter the current stock price: "))
+    else: currentCP == "no"
+    global stock_discount
+    stock_discount = str(input("Was there a stock discount?: "))
+    if stock_discount == "yes":
+        current_stock_price_dis = float(input("Enter the current stock price discounted: "))
+    else: stock_discount = "no"
+    new_issuance_flotation_expense = float(input("Enter the flotation expense of new share issuance: ")) / 100
+
+    # Run all functions
+    CAPM(Risk_Free_Rate, Market_Risk_Premium, Beta)
+    if currentCP == "yes":
+        retained_earnings_with_CP(D1, current_stock_price, dividend_payout, ROE, new_issuance_flotation_expense, current_stock_price_dis)
+    else:
+        retained_earnings_without_CP(D1, dividend_payout, ROE, new_issuance_flotation_expense)
+
+    # Calculate WACC
+    wacc = calculate_wacc(debt_percentage, equity_percentage, capital, retained_earnings)
+
+    # Output WACC
+    print("The Weighted Average Cost of Capital (WACC) is:", round(wacc * 100,4), end="" "%")
+
+
+if __name__ == "__main__":
+    main()
